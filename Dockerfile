@@ -5,6 +5,9 @@ WORKDIR /app
 # Copy Cargo manifest only
 COPY Cargo.toml ./
 
+# Create dummy target to satisfy Cargo's manifest parser
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
 # Generate fresh lockfile inside container
 RUN cargo generate-lockfile
 
