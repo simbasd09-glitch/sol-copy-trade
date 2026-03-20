@@ -1,0 +1,10 @@
+/target
+.env
+config.toml
+*.log
+*.csv
+.DS_Store
+.simulate
+node_modules/
+dist/
+.env.backup
