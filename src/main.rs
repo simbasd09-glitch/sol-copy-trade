@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fastest_rpc = rpc_pool.fastest_client().await;
     
     let blockhash_pool = BlockhashPool::new(fastest_rpc.clone()).await;
-    let wallet = Arc::new(WalletManager::from_private_key(&config.wallet_private_key)?);
+    let wallet = Arc::new(WalletManager::new(&config.wallet_private_key)?);
     let mc_manager = Arc::new(MarketCapManager::new(config.priority_fee_base, fastest_rpc.clone()));
     let tx_pool = Arc::new(TxPool::new(config.priority_fee_base, config.shadow_mode));
     let metrics = Arc::new(MetricsCollector::new());

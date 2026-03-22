@@ -123,13 +123,15 @@ impl RpcPool {
             let cfg = config.clone();
             let bytes = serialized.clone();
             futs.push(Box::pin(async move {
-                let tx: VersionedTransaction = bincode::deserialize(&bytes).ok()?;
+                let tx: VersionedTransaction = match bincode::deserialize(&bytes) {
+                    Ok(t) => t,
+                    Err(_) => return (None, url),
+                };
                 match client.send_transaction_with_config(&tx, cfg).await {
                     Ok(sig) => (Some(sig), url),
                     Err(e) => {
                         let err_str = e.to_string();
                         if err_str.contains("Already processed") || err_str.contains("duplicate") {
-                            // Extract signature from error if possible, or just treat as success if it reached network
                             (None, url) 
                         } else {
                             (None, url)

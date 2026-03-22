@@ -61,7 +61,7 @@ impl SystemWorkers {
         let (alert_tx, alert_rx)   = async_channel::bounded::<String>(256);
 
         let dev_set: Arc<HashSet<String>> = Arc::new(config.developer_wallet_list.iter().cloned().collect());
-        let tx_pool = Arc::new(TxPool::new(config.priority_fee, config.shadow_mode));
+        let tx_pool = Arc::new(TxPool::new(config.priority_fee_base, config.shadow_mode));
         let sell_monitor = Arc::new(SellMonitor::new());
 
         // ── Stream / Decoder logic (skipped if test_rx is provided) ─────
@@ -77,7 +77,7 @@ impl SystemWorkers {
             }
 
             // 2. Decoder Workers (4 workers for parallel parsing)
-            let target_devs = Arc::new(config.developer_wallet_list.iter().cloned().collect());
+            let target_devs: Arc<HashSet<String>> = Arc::new(config.developer_wallet_list.iter().cloned().collect());
             for i in 0..4 {
                 let rx = raw_rx.clone();
                 let tx = decode_tx.clone();

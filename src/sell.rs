@@ -69,7 +69,7 @@ impl SellMonitor {
         loop {
             interval.tick().await;
 
-            let mut to_sell: Vec<(String, String)> = Vec::new();
+            let mut to_sell: Vec<(String, String, f64)> = Vec::new();
 
             for entry in self.positions.iter() {
                 let pos = entry.value();
@@ -91,12 +91,12 @@ impl SellMonitor {
                             continue;
                         }
                     }
-                    to_sell.push((pos.mint.clone(), "timeout".to_string()));
+                    to_sell.push((pos.mint.clone(), "timeout".to_string(), 0.0));
                     continue;
                 }
 
                 // In simulation mode, we trigger sell immediately for testing
-                let mut current_price = None;
+                let current_price;
                 if rpc_pool.test_mode {
                     current_price = Some(pos.entry_price_sol * 2.0); // +100% profit
                 } else {
@@ -123,12 +123,12 @@ impl SellMonitor {
                                 continue;
                             }
                         }
-                        to_sell.push((pos.mint.clone(), "profit".to_string()));
+                        to_sell.push((pos.mint.clone(), "profit".to_string(), profit_pct));
                     }
                 }
             }
 
-            for (mint, reason) in to_sell {
+            for (mint, reason, profit_pct) in to_sell {
                 self.positions.remove(&mint);
                 info!(mint = %mint, reason = %reason, "Sell triggered in monitor");
 
@@ -139,6 +139,7 @@ impl SellMonitor {
                 let rpc_client_c = rpc_client.clone();
                 let met = metrics.clone();
                 let tg  = telegram.clone();
+                let profit_pct = profit_pct; // ensure it's captured
 
                 tokio::spawn(async move {
                     Self::execute_sell(
@@ -185,7 +186,7 @@ impl SellMonitor {
         blockhash_pool: BlockhashPool,
         wallet: Arc<WalletManager>,
         mc_manager: Arc<MarketCapManager>,
-        reason: &str,
+        _reason: &str,
         profit_pct: f64,
         metrics: Option<Arc<crate::metrics::MetricsCollector>>,
         telegram: crate::telegram::ArcTelegram,

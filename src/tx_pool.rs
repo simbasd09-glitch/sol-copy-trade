@@ -59,7 +59,7 @@ impl TxPool {
             Pubkey::from_str("CebN5WGQ4jvEPvsVU4EoHEpgznyZKRL1eovpZTPLbz5").ok()?;
         let system_prog  = solana_sdk::system_program::id();
         let token_prog   = spl_token::id();
-        let assoc_prog   = spl_associated_token_account::id(); // kept for template but not in IX
+        let _assoc_prog  = spl_associated_token_account::id(); // kept for template but not in IX
         let rent_sysvar  = solana_sdk::sysvar::rent::id();
         let event_auth   = Pubkey::from_str("Ce6TQqeHC9p8KBAZvhtGpwzvKAJKSVzbszeAVdgVkqZY").unwrap();
 
